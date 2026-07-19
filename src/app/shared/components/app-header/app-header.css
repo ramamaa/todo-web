@@ -1,0 +1,93 @@
+.app-header {
+  border-bottom: 1px solid #e2e8f0;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+}
+
+.header-content {
+  display: flex;
+  width: min(100% - 48px, 920px);
+  min-height: 66px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin: 0 auto;
+}
+
+.brand {
+  color: #0f172a;
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  text-decoration: none;
+}
+
+.brand span {
+  color: #4f46e5;
+}
+
+.navigation {
+  display: flex;
+  gap: 8px;
+}
+
+.navigation a {
+  padding: 8px 10px;
+  border-radius: 8px;
+  color: #64748b;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.navigation a:hover,
+.navigation a.active {
+  color: #4338ca;
+  background: #eef2ff;
+}
+
+.user-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.username {
+  color: #475569;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.user-actions button {
+  padding: 8px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #475569;
+  background: #fff;
+  font-weight: 700;
+}
+
+.user-actions button:hover {
+  color: #dc2626;
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+@media (max-width: 620px) {
+  .header-content {
+    width: min(100% - 32px, 920px);
+    min-height: auto;
+    flex-wrap: wrap;
+    padding: 14px 0;
+  }
+
+  .navigation {
+    order: 3;
+    width: 100%;
+  }
+
+  .username {
+    display: none;
+  }
+}

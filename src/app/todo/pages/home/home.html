@@ -1,0 +1,52 @@
+<app-app-header></app-app-header>
+
+<main class="home-page">
+  <section class="home-container">
+    <header class="page-heading">
+      <p class="eyebrow">WORKSPACE OVERVIEW</p>
+      <h1>Everyone's todos</h1>
+      <p>Track what your team is currently working on.</p>
+    </header>
+
+    @if (isLoading()) {
+      <p class="state-message">Loading todos...</p>
+    } @else if (errorMessage()) {
+      <div class="error-state">
+        <p>{{ errorMessage() }}</p>
+        <button type="button" (click)="loadTodos()">Try again</button>
+      </div>
+    } @else if (todos().length === 0) {
+      <div class="empty-state">
+        <h2>No todos yet</h2>
+        <p>Your workspace has no todos yet.</p>
+      </div>
+    } @else {
+      <section class="todo-list">
+        @for (todo of todos(); track todo.id) {
+          <article class="todo-card" [class.completed]="todo.completed">
+            <span class="status-dot" [class.done]="todo.completed" aria-hidden="true"></span>
+
+            <div class="todo-content">
+              <div class="todo-topline">
+                <h2>{{ todo.title }}</h2>
+                <span class="status-label">
+                  {{ todo.completed ? 'Completed' : 'In progress' }}
+                </span>
+              </div>
+
+              @if (todo.description) {
+                <p class="description">{{ todo.description }}</p>
+              }
+
+              <div class="meta">
+                <span>Created by {{ todo.user?.username ?? 'Unknown user' }}</span>
+                <span>•</span>
+                <span>{{ todo.createdAt | date: 'mediumDate' }}</span>
+              </div>
+            </div>
+          </article>
+        }
+      </section>
+    }
+  </section>
+</main>

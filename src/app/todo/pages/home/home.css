@@ -1,0 +1,149 @@
+.home-page {
+  min-height: calc(100vh - 66px);
+  padding: 48px 24px;
+  background: #f8fafc;
+}
+
+.home-container {
+  width: min(100%, 920px);
+  margin: 0 auto;
+}
+
+.page-heading {
+  margin-bottom: 32px;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: #6366f1;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+h1 {
+  margin: 0;
+  color: #0f172a;
+  font-size: clamp(2rem, 5vw, 2.7rem);
+  letter-spacing: -0.05em;
+}
+
+.page-heading > p:last-child {
+  margin: 9px 0 0;
+  color: #64748b;
+}
+
+.todo-list {
+  display: grid;
+  gap: 12px;
+}
+
+.todo-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 5px 16px rgba(15, 23, 42, 0.04);
+}
+
+.status-dot {
+  width: 11px;
+  height: 11px;
+  flex: 0 0 auto;
+  margin-top: 7px;
+  border-radius: 999px;
+  background: #f59e0b;
+}
+
+.status-dot.done {
+  background: #22c55e;
+}
+
+.todo-content {
+  min-width: 0;
+  flex: 1;
+}
+
+.todo-topline {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+h2 {
+  margin: 0;
+  color: #1e293b;
+  font-size: 1.05rem;
+}
+
+.description {
+  margin: 7px 0 0;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.meta {
+  display: flex;
+  gap: 7px;
+  margin-top: 12px;
+  color: #94a3b8;
+  font-size: 0.82rem;
+}
+
+.status-label {
+  flex: 0 0 auto;
+  padding: 6px 10px;
+  border-radius: 999px;
+  color: #475569;
+  background: #f1f5f9;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.todo-card.completed {
+  opacity: 0.72;
+}
+
+.todo-card.completed h2 {
+  text-decoration: line-through;
+}
+
+.state-message,
+.empty-state,
+.error-state {
+  padding: 32px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 16px;
+  text-align: center;
+  color: #64748b;
+  background: #fff;
+}
+
+.error-state {
+  border-color: #fecaca;
+  color: #b91c1c;
+  background: #fef2f2;
+}
+
+.error-state button {
+  border: 0;
+  cursor: pointer;
+  color: #b91c1c;
+  background: transparent;
+  font-weight: 700;
+}
+
+@media (max-width: 640px) {
+  .home-page {
+    padding: 32px 16px;
+  }
+
+  .todo-topline {
+    flex-direction: column;
+    gap: 10px;
+  }
+}

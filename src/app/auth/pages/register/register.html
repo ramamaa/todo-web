@@ -1,0 +1,42 @@
+<section class="auth-page">
+  <form class="auth-card" [formGroup]="registerForm" (ngSubmit)="submit()">
+    <h1>Create account</h1>
+    <p>Create an account to manage your todos.</p>
+
+    @if (errorMessage()) {
+      <p class="error-message">{{ errorMessage() }}</p>
+    }
+
+    <label for="username">Username</label>
+    <input id="username" type="text" formControlName="username" placeholder="Enter your username" />
+    @if (registerForm.controls.username.touched && registerForm.controls.username.invalid) {
+      <small class="field-error">Username is required.</small>
+    }
+
+    <label for="email">Email</label>
+    <input id="email" type="email" formControlName="email" placeholder="you@example.com" />
+    @if (registerForm.controls.email.touched && registerForm.controls.email.invalid) {
+      <small class="field-error">Enter a valid email address.</small>
+    }
+
+    <label for="password">Password</label>
+    <input
+      id="password"
+      type="password"
+      formControlName="password"
+      placeholder="At least 8 characters"
+    />
+    @if (registerForm.controls.password.touched && registerForm.controls.password.invalid) {
+      <small class="field-error">Password must be at least 8 characters.</small>
+    }
+
+    <button type="submit" [disabled]="isSubmitting()">
+      {{ isSubmitting() ? 'Creating account...' : 'Create account' }}
+    </button>
+
+    <p class="switch-auth">
+      Already have an account?
+      <a routerLink="/login">Log in</a>
+    </p>
+  </form>
+</section>

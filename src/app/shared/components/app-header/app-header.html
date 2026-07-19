@@ -1,0 +1,15 @@
+<header class="app-header">
+  <div class="header-content">
+    <a class="brand" routerLink="/home"> Todo<span>Flow</span> </a>
+
+    <nav class="navigation">
+      <a routerLink="/home" routerLinkActive="active">Home</a>
+      <a routerLink="/dashboard" routerLinkActive="active">My dashboard</a>
+    </nav>
+
+    <div class="user-actions">
+      <span class="username">{{ currentUser?.username }}</span>
+      <button type="button" (click)="logout()">Log out</button>
+    </div>
+  </div>
+</header>

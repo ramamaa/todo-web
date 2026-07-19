@@ -1,0 +1,135 @@
+<main class="dashboard-page">
+  <app-app-header></app-app-header>
+  <section class="dashboard-container">
+    <header class="dashboard-header">
+      <div>
+        <p class="eyebrow">TEAM WORKSPACE</p>
+        <h1>Todo dashboard</h1>
+        <p class="subtitle">See what everyone is working on.</p>
+      </div>
+
+      <button type="button" class="add-button" (click)="openCreateForm()">+ Add todo</button>
+    </header>
+    @if (isCreateFormOpen()) {
+      <div class="modal-backdrop" (click)="closeCreateForm()">
+        <form
+          class="todo-form"
+          [formGroup]="createTodoForm"
+          (ngSubmit)="createTodo()"
+          (click)="$event.stopPropagation()"
+        >
+          <div class="form-header">
+            <div>
+              <p class="eyebrow">NEW TODO</p>
+              <h2>Create a todo</h2>
+            </div>
+
+            <button
+              type="button"
+              class="close-button"
+              (click)="closeCreateForm()"
+              aria-label="Close create todo form"
+            >
+              ×
+            </button>
+          </div>
+
+          @if (createErrorMessage()) {
+            <p class="form-error">{{ createErrorMessage() }}</p>
+          }
+
+          <label for="todo-title">Title</label>
+          <input
+            id="todo-title"
+            type="text"
+            formControlName="title"
+            placeholder="What needs to be done?"
+          />
+          @if (createTodoForm.controls.title.touched && createTodoForm.controls.title.invalid) {
+            <small class="field-error">A title is required.</small>
+          }
+
+          <label for="todo-description">Description <span>(optional)</span></label>
+          <textarea
+            id="todo-description"
+            formControlName="description"
+            placeholder="Add more details..."
+            rows="4"
+          ></textarea>
+
+          <div class="form-actions">
+            <button type="button" class="cancel-button" (click)="closeCreateForm()">Cancel</button>
+
+            <button type="submit" class="submit-button" [disabled]="isCreating()">
+              {{ isCreating() ? 'Creating...' : 'Create todo' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    }
+    @if (isLoading()) {
+      <p class="state-message">Loading todos...</p>
+    } @else if (errorMessage()) {
+      <div class="error-state">
+        <p>{{ errorMessage() }}</p>
+        <button type="button" (click)="loadTodos()">Try again</button>
+      </div>
+    } @else if (todos().length === 0) {
+      <div class="empty-state">
+        <h2>No todos yet</h2>
+        <p>Create the first todo for your workspace.</p>
+      </div>
+    }
+    @if (actionErrorMessage()) {
+      <p class="action-error">{{ actionErrorMessage() }}</p>
+    } @else {
+      <section class="todo-list">
+        @for (todo of todos(); track todo.id) {
+          <article class="todo-card" [class.completed]="todo.completed">
+            <div class="todo-main">
+              <span class="status-dot" [class.done]="todo.completed" aria-hidden="true"></span>
+
+              <div>
+                <h2>{{ todo.title }}</h2>
+
+                @if (todo.description) {
+                  <p class="description">{{ todo.description }}</p>
+                }
+
+                <div class="meta">
+                  <span>Created by {{ todo.user?.username ?? 'Unknown user' }}</span>
+                  <span>•</span>
+                  <span>{{ todo.createdAt | date: 'mediumDate' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="todo-actions">
+              <span class="status-label">
+                {{ todo.completed ? 'Completed' : 'In progress' }}
+              </span>
+
+              @if (isOwner(todo)) {
+                <button
+                  type="button"
+                  class="action-button complete-button"
+                  (click)="toggleTodo(todo)"
+                >
+                  {{ todo.completed ? 'Mark active' : 'Complete' }}
+                </button>
+
+                <button
+                  type="button"
+                  class="action-button delete-button"
+                  (click)="deleteTodo(todo)"
+                >
+                  Delete
+                </button>
+              }
+            </div>
+          </article>
+        }
+      </section>
+    }
+  </section>
+</main>
