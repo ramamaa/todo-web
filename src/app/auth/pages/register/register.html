@@ -1,42 +1,50 @@
+<app-header></app-header>
+
 <section class="auth-page">
-  <form class="auth-card" [formGroup]="registerForm" (ngSubmit)="submit()">
-    <h1>Create account</h1>
-    <p>Create an account to manage your todos.</p>
+  <div class="auth-card">
+    <h1>Register</h1>
+    <p>Create a new account to start managing your todos.</p>
 
-    @if (errorMessage()) {
-      <p class="error-message">{{ errorMessage() }}</p>
-    }
+    <form [formGroup]="registerForm" (ngSubmit)="submit()">
+      <label>
+        Username
+        <input type="text" formControlName="username" placeholder="Your username" />
+      </label>
 
-    <label for="username">Username</label>
-    <input id="username" type="text" formControlName="username" placeholder="Enter your username" />
-    @if (registerForm.controls.username.touched && registerForm.controls.username.invalid) {
-      <small class="field-error">Username is required.</small>
-    }
+      @if (registerForm.get('username')?.touched && registerForm.get('username')?.invalid) {
+        <small class="error">Username is required.</small>
+      }
 
-    <label for="email">Email</label>
-    <input id="email" type="email" formControlName="email" placeholder="you@example.com" />
-    @if (registerForm.controls.email.touched && registerForm.controls.email.invalid) {
-      <small class="field-error">Enter a valid email address.</small>
-    }
+      <label>
+        Email
+        <input type="email" formControlName="email" placeholder="you@example.com" />
+      </label>
 
-    <label for="password">Password</label>
-    <input
-      id="password"
-      type="password"
-      formControlName="password"
-      placeholder="At least 8 characters"
-    />
-    @if (registerForm.controls.password.touched && registerForm.controls.password.invalid) {
-      <small class="field-error">Password must be at least 8 characters.</small>
-    }
+      @if (registerForm.get('email')?.touched && registerForm.get('email')?.invalid) {
+        <small class="error">Please enter a valid email.</small>
+      }
 
-    <button type="submit" [disabled]="isSubmitting()">
-      {{ isSubmitting() ? 'Creating account...' : 'Create account' }}
-    </button>
+      <label>
+        Password
+        <input type="password" formControlName="password" placeholder="At least 8 characters" />
+      </label>
 
-    <p class="switch-auth">
+      @if (registerForm.get('password')?.touched && registerForm.get('password')?.invalid) {
+        <small class="error">Password must be at least 8 characters.</small>
+      }
+
+      @if (errorMessage()) {
+        <div class="error-box">{{ errorMessage() }}</div>
+      }
+
+      <button type="submit" [disabled]="isSubmitting()">
+        {{ isSubmitting() ? 'Creating account...' : 'Register' }}
+      </button>
+    </form>
+
+    <p class="switch">
       Already have an account?
-      <a routerLink="/login">Log in</a>
+      <a routerLink="/login">Login</a>
     </p>
-  </form>
+  </div>
 </section>

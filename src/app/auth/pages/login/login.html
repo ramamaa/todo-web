@@ -1,36 +1,41 @@
+<app-header></app-header>
+
 <section class="auth-page">
-  <form class="auth-card" [formGroup]="loginForm" (ngSubmit)="submit()">
-    <h1>Welcome back</h1>
-    <p>Log in to continue managing your todos.</p>
+  <div class="auth-card">
+    <h1>Login</h1>
+    <p>Welcome back. Please sign in to continue.</p>
 
-    @if (errorMessage()) {
-      <p class="error-message">{{ errorMessage() }}</p>
-    }
+    <form [formGroup]="loginForm" (ngSubmit)="submit()">
+      <label>
+        Email
+        <input type="email" formControlName="email" placeholder="you@example.com" />
+      </label>
 
-    <label for="email">Email</label>
-    <input id="email" type="email" formControlName="email" placeholder="you@example.com" />
-    @if (loginForm.controls.email.touched && loginForm.controls.email.invalid) {
-      <small class="field-error">Enter a valid email address.</small>
-    }
+      @if (loginForm.get('email')?.touched && loginForm.get('email')?.invalid) {
+        <small class="error">Please enter a valid email.</small>
+      }
 
-    <label for="password">Password</label>
-    <input
-      id="password"
-      type="password"
-      formControlName="password"
-      placeholder="Enter your password"
-    />
-    @if (loginForm.controls.password.touched && loginForm.controls.password.invalid) {
-      <small class="field-error">Password must be at least 8 characters.</small>
-    }
+      <label>
+        Password
+        <input type="password" formControlName="password" placeholder="••••••••" />
+      </label>
 
-    <button type="submit" [disabled]="isSubmitting()">
-      {{ isSubmitting() ? 'Logging in...' : 'Log in' }}
-    </button>
+      @if (loginForm.get('password')?.touched && loginForm.get('password')?.invalid) {
+        <small class="error">Password must be at least 8 characters.</small>
+      }
 
-    <p class="switch-auth">
-      Don't have an account?
-      <a routerLink="/register">Create account</a>
+      @if (errorMessage()) {
+        <div class="error-box">{{ errorMessage() }}</div>
+      }
+
+      <button type="submit" [disabled]="isSubmitting()">
+        {{ isSubmitting() ? 'Signing in...' : 'Login' }}
+      </button>
+    </form>
+
+    <p class="switch">
+      Don’t have an account?
+      <a routerLink="/register">Register</a>
     </p>
-  </form>
+  </div>
 </section>

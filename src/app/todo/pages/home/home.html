@@ -1,52 +1,84 @@
-<app-app-header></app-app-header>
+<app-header></app-header>
 
-<main class="home-page">
-  <section class="home-container">
-    <header class="page-heading">
-      <p class="eyebrow">WORKSPACE OVERVIEW</p>
-      <h1>Everyone's todos</h1>
-      <p>Track what your team is currently working on.</p>
-    </header>
+<section class="home-page">
+  <div class="hero">
+    <div class="hero-badge">PUBLIC WORKSPACE</div>
 
-    @if (isLoading()) {
-      <p class="state-message">Loading todos...</p>
-    } @else if (errorMessage()) {
-      <div class="error-state">
-        <p>{{ errorMessage() }}</p>
-        <button type="button" (click)="loadTodos()">Try again</button>
+    <h1>TodoFlow</h1>
+    <p class="hero-text">Plan tasks, stay organized, and follow what your team is building.</p>
+
+    <div class="hero-actions">
+      <a routerLink="/login" class="primary-btn">Login</a>
+      <a routerLink="/register" class="secondary-btn">Register</a>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="state-box">Loading todos...</div>
+  } @else if (errorMessage()) {
+    <div class="state-box error">{{ errorMessage() }}</div>
+  } @else {
+    <div class="feed-header">
+      <div>
+        <p class="section-label">LATEST PUBLIC TODOS</p>
+        <h2>What everyone is working on</h2>
       </div>
-    } @else if (todos().length === 0) {
-      <div class="empty-state">
-        <h2>No todos yet</h2>
-        <p>Your workspace has no todos yet.</p>
+
+      <span class="feed-count">{{ filteredTodos().length }} items</span>
+    </div>
+
+    <div class="category-strip">
+      @for (category of categories(); track category.id) {
+        <button
+          type="button"
+          class="category-chip"
+          [class.active]="selectedCategory() === category.id"
+          (click)="selectCategory(category.id)"
+        >
+          <span>{{ category.name }}</span>
+          <span class="count">{{ category.count }}</span>
+        </button>
+      }
+    </div>
+
+    @if (filteredTodos().length === 0) {
+      <div class="empty-box">
+        <h2>No todos in this category</h2>
+        <p>Try another category badge above.</p>
       </div>
     } @else {
-      <section class="todo-list">
-        @for (todo of todos(); track todo.id) {
+      <section class="todo-grid">
+        @for (todo of filteredTodos(); track todo.id) {
           <article class="todo-card" [class.completed]="todo.completed">
-            <span class="status-dot" [class.done]="todo.completed" aria-hidden="true"></span>
+            <div class="card-top">
+              <div class="status-dot" [class.done]="todo.completed"></div>
+              <span class="status-pill">
+                {{ todo.completed ? 'Completed' : 'Open' }}
+              </span>
+            </div>
 
-            <div class="todo-content">
-              <div class="todo-topline">
-                <h2>{{ todo.title }}</h2>
-                <span class="status-label">
-                  {{ todo.completed ? 'Completed' : 'In progress' }}
-                </span>
-              </div>
+            <h3>{{ todo.title }}</h3>
 
-              @if (todo.description) {
-                <p class="description">{{ todo.description }}</p>
+            @if (todo.description) {
+              <p class="description">{{ todo.description }}</p>
+            }
+
+            <div class="meta">
+              <span>{{ todo.created_at | date: 'mediumDate' }}</span>
+
+              @if (todo.category_name) {
+                <span class="tag">{{ todo.category_name }}</span>
+              } @else {
+                <span class="tag muted">No category</span>
               }
 
-              <div class="meta">
-                <span>Created by {{ todo.user?.username ?? 'Unknown user' }}</span>
-                <span>•</span>
-                <span>{{ todo.createdAt | date: 'mediumDate' }}</span>
-              </div>
+              @if (todo.username) {
+                <span class="creator">by {{ todo.username }}</span>
+              }
             </div>
           </article>
         }
       </section>
     }
-  </section>
-</main>
+  }
+</section>

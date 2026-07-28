@@ -1,108 +1,189 @@
 import { DatePipe } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TodoItem } from '../../models/todo.models';
-import { TodoService } from '../../services/todo';
-import { AuthService } from '../../../auth/services/auth';
 import { AppHeader } from '../../../shared/components/app-header/app-header';
+import { AuthService } from '../../../auth/services/auth';
+import { CategoryService } from '../../services/category.service';
+import { TodoService } from '../../services/todo';
+import { CategoryItem, CreateCategoryRequest } from '../../models/category.models';
+import { TodoItem, TodoPriority } from '../../models/todo.models';
 
 @Component({
   selector: 'app-dashboard',
+  standalone: true,
   imports: [DatePipe, ReactiveFormsModule, AppHeader],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })
 export class Dashboard implements OnInit {
   private readonly todoService = inject(TodoService);
+  private readonly categoryService = inject(CategoryService);
   private readonly authService = inject(AuthService);
   private readonly formBuilder = inject(FormBuilder);
 
   readonly todos = signal<TodoItem[]>([]);
-  readonly isLoading = signal(true);
-  readonly errorMessage = signal('');
-  readonly currentUser = this.authService.getCurrentUser();
+  readonly categories = signal<CategoryItem[]>([]);
+
+  readonly isLoadingTodos = signal(true);
+  readonly isLoadingCategories = signal(true);
+
+  readonly todoErrorMessage = signal('');
+  readonly categoryErrorMessage = signal('');
   readonly actionErrorMessage = signal('');
 
-  readonly isCreateFormOpen = signal(false);
-  readonly isCreating = signal(false);
-  readonly createErrorMessage = signal('');
+  readonly currentUser = this.authService.getCurrentUser();
 
-  readonly createTodoForm = this.formBuilder.nonNullable.group({
+  readonly isFormOpen = signal(false);
+  readonly isSavingTodo = signal(false);
+  readonly editingTodo = signal<TodoItem | null>(null);
+  readonly todoFormError = signal('');
+
+  readonly isCreatingCategory = signal(false);
+  readonly categoryFormError = signal('');
+
+  readonly createCategoryForm = this.formBuilder.nonNullable.group({
+    name: ['', [Validators.required, Validators.minLength(2)]],
+  });
+
+  readonly todoForm = this.formBuilder.nonNullable.group({
     title: ['', [Validators.required]],
     description: [''],
+    priority: ['medium' as TodoPriority],
+    due_date: [''],
+    category_id: [''],
   });
 
   ngOnInit(): void {
+    this.loadCategories();
     this.loadTodos();
   }
 
+  loadCategories(): void {
+    this.isLoadingCategories.set(true);
+    this.categoryErrorMessage.set('');
+
+    this.categoryService.getMyCategories().subscribe({
+      next: (categories) => {
+        this.categories.set(categories);
+        this.isLoadingCategories.set(false);
+      },
+      error: () => {
+        this.categoryErrorMessage.set('Could not load categories.');
+        this.isLoadingCategories.set(false);
+      },
+    });
+  }
+
   loadTodos(): void {
-    this.isLoading.set(true);
-    this.errorMessage.set('');
+    this.isLoadingTodos.set(true);
+    this.todoErrorMessage.set('');
 
     this.todoService.getMyTodos().subscribe({
       next: (todos) => {
         this.todos.set(todos);
-        this.isLoading.set(false);
+        this.isLoadingTodos.set(false);
       },
       error: () => {
-        this.errorMessage.set('Could not load todos. Please try again.');
-        this.isLoading.set(false);
+        this.todoErrorMessage.set('Could not load todos. Please try again.');
+        this.isLoadingTodos.set(false);
       },
     });
   }
 
   openCreateForm(): void {
-    this.createErrorMessage.set('');
-    this.isCreateFormOpen.set(true);
+    this.editingTodo.set(null);
+    this.todoFormError.set('');
+    this.todoForm.reset({
+      title: '',
+      description: '',
+      priority: 'medium',
+      due_date: '',
+      category_id: '',
+    });
+    this.isFormOpen.set(true);
   }
 
-  closeCreateForm(): void {
-    this.createTodoForm.reset();
-    this.createErrorMessage.set('');
-    this.isCreateFormOpen.set(false);
+  openEditForm(todo: TodoItem): void {
+    this.editingTodo.set(todo);
+    this.todoFormError.set('');
+    this.todoForm.reset({
+      title: todo.title,
+      description: todo.description ?? '',
+      priority: todo.priority,
+      due_date: todo.due_date ?? '',
+      category_id: todo.category_id ? String(todo.category_id) : '',
+    });
+    this.isFormOpen.set(true);
   }
 
-  createTodo(): void {
-    if (this.createTodoForm.invalid) {
-      this.createTodoForm.markAllAsTouched();
+  closeForm(): void {
+    this.isFormOpen.set(false);
+    this.editingTodo.set(null);
+    this.todoFormError.set('');
+    this.todoForm.reset({
+      title: '',
+      description: '',
+      priority: 'medium',
+      due_date: '',
+      category_id: '',
+    });
+  }
+
+  saveTodo(): void {
+    if (this.todoForm.invalid) {
+      this.todoForm.markAllAsTouched();
       return;
     }
 
-    this.isCreating.set(true);
-    this.createErrorMessage.set('');
+    const raw = this.todoForm.getRawValue();
 
-    this.todoService.createTodo(this.createTodoForm.getRawValue()).subscribe({
+    const payload = {
+      title: raw.title,
+      description: raw.description || undefined,
+      priority: raw.priority as TodoPriority,
+      due_date: raw.due_date || null,
+      category_id: raw.category_id ? Number(raw.category_id) : null,
+    };
+
+    this.isSavingTodo.set(true);
+    this.todoFormError.set('');
+
+    const request$ = this.editingTodo()
+      ? this.todoService.updateTodo(this.editingTodo()!.id, payload)
+      : this.todoService.createTodo(payload);
+
+    request$.subscribe({
       next: () => {
-        this.closeCreateForm();
-        this.isCreating.set(false);
+        this.closeForm();
+        this.isSavingTodo.set(false);
         this.loadTodos();
       },
       error: (error) => {
-        this.createErrorMessage.set(error.error?.message ?? 'Could not create the todo.');
-        this.isCreating.set(false);
+        this.todoFormError.set(error.error?.message ?? 'Could not save todo.');
+        this.isSavingTodo.set(false);
       },
     });
-  }
-  isOwner(todo: TodoItem): boolean {
-    return todo.userId === this.currentUser?.id;
   }
 
   toggleTodo(todo: TodoItem): void {
     this.actionErrorMessage.set('');
 
-    this.todoService.updateTodo(todo.id, { completed: !todo.completed }).subscribe({
-      next: (updatedTodo) => {
-        this.todos.update((todos) =>
-          todos.map((currentTodo) =>
-            currentTodo.id === updatedTodo.id ? { ...currentTodo, ...updatedTodo } : currentTodo,
-          ),
-        );
-      },
-      error: (error) => {
-        this.actionErrorMessage.set(error.error?.message ?? 'Could not update the todo.');
-      },
-    });
+    this.todoService
+      .updateTodo(todo.id, {
+        completed: !todo.completed,
+      })
+      .subscribe({
+        next: (updatedTodo) => {
+          this.todos.update((todos) =>
+            todos.map((currentTodo) =>
+              currentTodo.id === updatedTodo.id ? { ...currentTodo, ...updatedTodo } : currentTodo,
+            ),
+          );
+        },
+        error: (error) => {
+          this.actionErrorMessage.set(error.error?.message ?? 'Could not update the todo.');
+        },
+      });
   }
 
   deleteTodo(todo: TodoItem): void {
@@ -120,6 +201,32 @@ export class Dashboard implements OnInit {
       },
       error: (error) => {
         this.actionErrorMessage.set(error.error?.message ?? 'Could not delete the todo.');
+      },
+    });
+  }
+
+  createCategory(): void {
+    if (this.createCategoryForm.invalid) {
+      this.createCategoryForm.markAllAsTouched();
+      return;
+    }
+
+    this.isCreatingCategory.set(true);
+    this.categoryFormError.set('');
+
+    const payload: CreateCategoryRequest = {
+      name: this.createCategoryForm.getRawValue().name,
+    };
+
+    this.categoryService.createCategory(payload).subscribe({
+      next: () => {
+        this.createCategoryForm.reset({ name: '' });
+        this.isCreatingCategory.set(false);
+        this.loadCategories();
+      },
+      error: (error) => {
+        this.categoryFormError.set(error.error?.message ?? 'Could not create category.');
+        this.isCreatingCategory.set(false);
       },
     });
   }

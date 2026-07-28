@@ -2,10 +2,12 @@ import { Component, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, Validators, FormBuilder } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth';
+import { AppHeader } from '../../../shared/components/app-header/app-header';
 
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule, RouterLink],
+  standalone: true,
+  imports: [ReactiveFormsModule, RouterLink, AppHeader],
   templateUrl: './register.html',
   styleUrl: './register.css',
 })
@@ -18,7 +20,7 @@ export class Register {
   readonly errorMessage = signal('');
 
   readonly registerForm = this.formBuilder.nonNullable.group({
-    username: ['', [Validators.required]],
+    username: ['', [Validators.required, Validators.minLength(2)]],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(8)]],
   });
@@ -32,9 +34,23 @@ export class Register {
     this.isSubmitting.set(true);
     this.errorMessage.set('');
 
-    this.authService.register(this.registerForm.getRawValue()).subscribe({
+    const formValue = this.registerForm.getRawValue();
+
+    this.authService.register(formValue).subscribe({
       next: () => {
-        this.router.navigate(['/login']);
+        this.authService
+          .login({
+            email: formValue.email,
+            password: formValue.password,
+          })
+          .subscribe({
+            next: () => {
+              this.router.navigate(['/dashboard']);
+            },
+            error: () => {
+              this.router.navigate(['/login']);
+            },
+          });
       },
       error: (error) => {
         this.errorMessage.set(error.error?.message ?? 'Registration failed. Please try again.');

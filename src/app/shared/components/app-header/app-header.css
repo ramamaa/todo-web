@@ -1,93 +1,121 @@
+:host {
+  display: block;
+}
+
 .app-header {
-  border-bottom: 1px solid #e2e8f0;
-  background: rgba(255, 255, 255, 0.92);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+  background: rgba(255, 255, 255, 0.84);
   backdrop-filter: blur(12px);
 }
 
 .header-content {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  min-height: 72px;
   display: flex;
-  width: min(100% - 48px, 920px);
-  min-height: 66px;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
-  margin: 0 auto;
+  gap: 18px;
 }
 
 .brand {
-  color: #0f172a;
-  font-size: 1.2rem;
-  font-weight: 800;
-  letter-spacing: -0.04em;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   text-decoration: none;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #0f172a;
 }
 
 .brand span {
-  color: #4f46e5;
+  color: #6366f1;
 }
 
-.navigation {
-  display: flex;
-  gap: 8px;
-}
-
-.navigation a {
-  padding: 8px 10px;
-  border-radius: 8px;
-  color: #64748b;
-  font-size: 0.9rem;
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.navigation a:hover,
-.navigation a.active {
-  color: #4338ca;
-  background: #eef2ff;
-}
-
+.navigation,
 .user-actions {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.username {
+.navigation a,
+.user-actions a {
+  text-decoration: none;
   color: #475569;
-  font-size: 0.9rem;
+  font-weight: 600;
+  transition:
+    color 0.16s ease,
+    opacity 0.16s ease;
+}
+
+.navigation a:hover,
+.user-actions a:hover {
+  color: #0f172a;
+}
+
+.navigation a.active {
+  color: #4f46e5;
+}
+
+.username {
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #4338ca;
+  font-size: 0.88rem;
   font-weight: 700;
 }
 
 .user-actions button {
-  padding: 8px 10px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  cursor: pointer;
-  color: #475569;
-  background: #fff;
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 14px;
+  background: #0f172a;
+  color: #fff;
   font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 0.16s ease,
+    opacity 0.16s ease;
 }
 
 .user-actions button:hover {
-  color: #dc2626;
-  border-color: #fecaca;
-  background: #fef2f2;
+  transform: translateY(-1px);
 }
 
-@media (max-width: 620px) {
+@media (max-width: 720px) {
   .header-content {
-    width: min(100% - 32px, 920px);
+    width: min(100%, calc(100% - 20px));
     min-height: auto;
-    flex-wrap: wrap;
     padding: 14px 0;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
-  .navigation {
-    order: 3;
+  .brand {
     width: 100%;
+    justify-content: center;
+  }
+
+  .navigation,
+  .user-actions {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
   }
 
   .username {
-    display: none;
+    order: 3;
+    width: 100%;
+    text-align: center;
+  }
+
+  .user-actions button {
+    width: 100%;
   }
 }

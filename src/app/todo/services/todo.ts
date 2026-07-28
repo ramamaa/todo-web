@@ -11,12 +11,12 @@ export class TodoService {
 
   constructor(private readonly http: HttpClient) {}
 
-  getTodos(): Observable<TodoItem[]> {
-    return this.http.get<TodoItem[]>(this.apiUrl);
+  getPublicTodos(): Observable<TodoItem[]> {
+    return this.http.get<TodoItem[]>(`${this.apiUrl}/public`);
   }
 
   getMyTodos(): Observable<TodoItem[]> {
-    return this.http.get<TodoItem[]>(`${this.apiUrl}/me`);
+    return this.http.get<TodoItem[]>(this.apiUrl);
   }
 
   createTodo(data: CreateTodoRequest): Observable<TodoItem> {
@@ -24,10 +24,10 @@ export class TodoService {
   }
 
   updateTodo(id: number, data: UpdateTodoRequest): Observable<TodoItem> {
-    return this.http.patch<TodoItem>(`${this.apiUrl}/${id}`, data);
+    return this.http.put<TodoItem>(`${this.apiUrl}/${id}`, data);
   }
 
-  deleteTodo(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  deleteTodo(id: number): Observable<TodoItem> {
+    return this.http.delete<TodoItem>(`${this.apiUrl}/${id}`);
   }
 }

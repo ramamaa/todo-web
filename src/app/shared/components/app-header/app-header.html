@@ -4,12 +4,20 @@
 
     <nav class="navigation">
       <a routerLink="/home" routerLinkActive="active">Home</a>
-      <a routerLink="/dashboard" routerLinkActive="active">My dashboard</a>
+
+      @if (isLoggedIn) {
+        <a routerLink="/dashboard" routerLinkActive="active">My dashboard</a>
+      }
     </nav>
 
     <div class="user-actions">
-      <span class="username">{{ currentUser?.username }}</span>
-      <button type="button" (click)="logout()">Log out</button>
+      @if (isLoggedIn) {
+        <span class="username">{{ currentUser?.username }}</span>
+        <button type="button" (click)="logout()">Log out</button>
+      } @else {
+        <a routerLink="/login">Login</a>
+        <a routerLink="/register">Register</a>
+      }
     </div>
   </div>
 </header>

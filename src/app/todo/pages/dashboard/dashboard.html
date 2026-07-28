@@ -1,41 +1,87 @@
 <main class="dashboard-page">
-  <app-app-header></app-app-header>
+  <app-header></app-header>
+
   <section class="dashboard-container">
     <header class="dashboard-header">
       <div>
-        <p class="eyebrow">TEAM WORKSPACE</p>
+        <p class="eyebrow">WORKSPACE</p>
         <h1>Todo dashboard</h1>
-        <p class="subtitle">See what everyone is working on.</p>
+        <p class="subtitle">Manage your todos and categories in one place.</p>
       </div>
 
-      <button type="button" class="add-button" (click)="openCreateForm()">+ Add todo</button>
+      <div class="header-actions">
+        <button type="button" class="secondary-button" (click)="openCreateForm()">
+          + Add todo
+        </button>
+      </div>
     </header>
-    @if (isCreateFormOpen()) {
-      <div class="modal-backdrop" (click)="closeCreateForm()">
+
+    <section class="category-panel">
+      <div class="category-panel-header">
+        <div>
+          <p class="eyebrow">CATEGORIES</p>
+          <h2>Your categories</h2>
+        </div>
+      </div>
+
+      @if (isLoadingCategories()) {
+        <p class="state-message">Loading categories...</p>
+      } @else if (categoryErrorMessage()) {
+        <div class="error-state">
+          <p>{{ categoryErrorMessage() }}</p>
+          <button type="button" (click)="loadCategories()">Try again</button>
+        </div>
+      } @else {
+        <div class="category-chips">
+          @if (categories().length === 0) {
+            <span class="empty-chip">No categories yet</span>
+          } @else {
+            @for (category of categories(); track category.id) {
+              <span class="category-chip">{{ category.name }}</span>
+            }
+          }
+        </div>
+      }
+
+      <form class="category-form" [formGroup]="createCategoryForm" (ngSubmit)="createCategory()">
+        <input type="text" formControlName="name" placeholder="New category name" />
+
+        <button type="submit" [disabled]="isCreatingCategory()">
+          {{ isCreatingCategory() ? 'Creating...' : 'Create category' }}
+        </button>
+      </form>
+
+      @if (categoryFormError()) {
+        <p class="form-error">{{ categoryFormError() }}</p>
+      }
+    </section>
+
+    @if (isFormOpen()) {
+      <div class="modal-backdrop" (click)="closeForm()">
         <form
           class="todo-form"
-          [formGroup]="createTodoForm"
-          (ngSubmit)="createTodo()"
+          [formGroup]="todoForm"
+          (ngSubmit)="saveTodo()"
           (click)="$event.stopPropagation()"
         >
           <div class="form-header">
             <div>
-              <p class="eyebrow">NEW TODO</p>
-              <h2>Create a todo</h2>
+              <p class="eyebrow">TODO</p>
+              <h2>{{ editingTodo() ? 'Edit todo' : 'Create a todo' }}</h2>
             </div>
 
             <button
               type="button"
               class="close-button"
-              (click)="closeCreateForm()"
-              aria-label="Close create todo form"
+              (click)="closeForm()"
+              aria-label="Close form"
             >
               ×
             </button>
           </div>
 
-          @if (createErrorMessage()) {
-            <p class="form-error">{{ createErrorMessage() }}</p>
+          @if (todoFormError()) {
+            <p class="form-error">{{ todoFormError() }}</p>
           }
 
           <label for="todo-title">Title</label>
@@ -45,7 +91,7 @@
             formControlName="title"
             placeholder="What needs to be done?"
           />
-          @if (createTodoForm.controls.title.touched && createTodoForm.controls.title.invalid) {
+          @if (todoForm.controls.title.touched && todoForm.controls.title.invalid) {
             <small class="field-error">A title is required.</small>
           }
 
@@ -57,21 +103,40 @@
             rows="4"
           ></textarea>
 
-          <div class="form-actions">
-            <button type="button" class="cancel-button" (click)="closeCreateForm()">Cancel</button>
+          <label for="todo-priority">Priority</label>
+          <select id="todo-priority" formControlName="priority">
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
 
-            <button type="submit" class="submit-button" [disabled]="isCreating()">
-              {{ isCreating() ? 'Creating...' : 'Create todo' }}
+          <label for="todo-due-date">Due date <span>(optional)</span></label>
+          <input id="todo-due-date" type="date" formControlName="due_date" />
+
+          <label for="todo-category">Category <span>(optional)</span></label>
+          <select id="todo-category" formControlName="category_id">
+            <option value="">No category</option>
+            @for (category of categories(); track category.id) {
+              <option [value]="category.id">{{ category.name }}</option>
+            }
+          </select>
+
+          <div class="form-actions">
+            <button type="button" class="cancel-button" (click)="closeForm()">Cancel</button>
+
+            <button type="submit" class="submit-button" [disabled]="isSavingTodo()">
+              {{ isSavingTodo() ? 'Saving...' : editingTodo() ? 'Update todo' : 'Create todo' }}
             </button>
           </div>
         </form>
       </div>
     }
-    @if (isLoading()) {
+
+    @if (isLoadingTodos()) {
       <p class="state-message">Loading todos...</p>
-    } @else if (errorMessage()) {
+    } @else if (todoErrorMessage()) {
       <div class="error-state">
-        <p>{{ errorMessage() }}</p>
+        <p>{{ todoErrorMessage() }}</p>
         <button type="button" (click)="loadTodos()">Try again</button>
       </div>
     } @else if (todos().length === 0) {
@@ -79,9 +144,6 @@
         <h2>No todos yet</h2>
         <p>Create the first todo for your workspace.</p>
       </div>
-    }
-    @if (actionErrorMessage()) {
-      <p class="action-error">{{ actionErrorMessage() }}</p>
     } @else {
       <section class="todo-list">
         @for (todo of todos(); track todo.id) {
@@ -97,9 +159,17 @@
                 }
 
                 <div class="meta">
-                  <span>Created by {{ todo.user?.username ?? 'Unknown user' }}</span>
-                  <span>•</span>
-                  <span>{{ todo.createdAt | date: 'mediumDate' }}</span>
+                  <span>{{ todo.created_at | date: 'mediumDate' }}</span>
+
+                  @if (todo.due_date) {
+                    <span>Due: {{ todo.due_date | date: 'mediumDate' }}</span>
+                  }
+
+                  <span class="priority">{{ todo.priority }}</span>
+
+                  @if (todo.category_name) {
+                    <span class="category-tag">{{ todo.category_name }}</span>
+                  }
                 </div>
               </div>
             </div>
@@ -109,23 +179,21 @@
                 {{ todo.completed ? 'Completed' : 'In progress' }}
               </span>
 
-              @if (isOwner(todo)) {
-                <button
-                  type="button"
-                  class="action-button complete-button"
-                  (click)="toggleTodo(todo)"
-                >
-                  {{ todo.completed ? 'Mark active' : 'Complete' }}
-                </button>
+              <button type="button" class="action-button edit-button" (click)="openEditForm(todo)">
+                Edit
+              </button>
 
-                <button
-                  type="button"
-                  class="action-button delete-button"
-                  (click)="deleteTodo(todo)"
-                >
-                  Delete
-                </button>
-              }
+              <button
+                type="button"
+                class="action-button complete-button"
+                (click)="toggleTodo(todo)"
+              >
+                {{ todo.completed ? 'Mark active' : 'Complete' }}
+              </button>
+
+              <button type="button" class="action-button delete-button" (click)="deleteTodo(todo)">
+                Delete
+              </button>
             </div>
           </article>
         }
