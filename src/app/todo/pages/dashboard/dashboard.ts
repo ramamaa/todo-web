@@ -7,6 +7,7 @@ import { CategoryService } from '../../services/category.service';
 import { TodoService } from '../../services/todo';
 import { CategoryItem, CreateCategoryRequest } from '../../models/category.models';
 import { TodoItem, TodoPriority } from '../../models/todo.models';
+import { computed } from '@angular/core';
 
 @Component({
   selector: 'app-dashboard',
@@ -51,6 +52,18 @@ export class Dashboard implements OnInit {
     priority: ['medium' as TodoPriority],
     due_date: [''],
     category_id: [''],
+  });
+
+  readonly completionPercentage = computed(() => {
+    const items = this.todos();
+
+    if (!items.length) {
+      return 0;
+    }
+
+    const completed = items.filter((todo) => todo.completed).length;
+
+    return Math.round((completed / items.length) * 100);
   });
 
   ngOnInit(): void {

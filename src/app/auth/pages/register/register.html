@@ -1,50 +1,158 @@
-<app-header></app-header>
+<main class="auth-page">
+  <section class="auth-shell">
+    <!-- LEFT BRAND PANEL -->
+    <aside class="brand-panel">
+      <div class="brand-content">
+        <div class="brand-logo">
+          <div class="logo-mark">✓</div>
 
-<section class="auth-page">
-  <div class="auth-card">
-    <h1>Register</h1>
-    <p>Create a new account to start managing your todos.</p>
+          <span>Todo</span>
+          <strong>Flow</strong>
+        </div>
 
-    <form [formGroup]="registerForm" (ngSubmit)="submit()">
-      <label>
-        Username
-        <input type="text" formControlName="username" placeholder="Your username" />
-      </label>
+        <div class="brand-message">
+          <span class="eyebrow">WELCOME TO TODOfLOW</span>
 
-      @if (registerForm.get('username')?.touched && registerForm.get('username')?.invalid) {
-        <small class="error">Username is required.</small>
-      }
+          <h1>
+            Turn your tasks
+            <span>into progress.</span>
+          </h1>
 
-      <label>
-        Email
-        <input type="email" formControlName="email" placeholder="you@example.com" />
-      </label>
+          <p>Organize your work, stay focused, and keep everything moving forward with TodoFlow.</p>
+        </div>
 
-      @if (registerForm.get('email')?.touched && registerForm.get('email')?.invalid) {
-        <small class="error">Please enter a valid email.</small>
-      }
+        <div class="brand-footer">
+          <span>PLAN</span>
+          <span class="divider"></span>
+          <span>FOCUS</span>
+          <span class="divider"></span>
+          <span>FLOW</span>
+        </div>
+      </div>
+    </aside>
 
-      <label>
-        Password
-        <input type="password" formControlName="password" placeholder="At least 8 characters" />
-      </label>
+    <!-- RIGHT FORM PANEL -->
+    <section class="form-panel">
+      <div class="mobile-logo">
+        <div class="logo-mark">✓</div>
 
-      @if (registerForm.get('password')?.touched && registerForm.get('password')?.invalid) {
-        <small class="error">Password must be at least 8 characters.</small>
-      }
+        <span>Todo</span>
+        <strong>Flow</strong>
+      </div>
 
-      @if (errorMessage()) {
-        <div class="error-box">{{ errorMessage() }}</div>
-      }
+      <div class="form-container">
+        <div class="form-heading">
+          <span class="form-eyebrow">GET STARTED</span>
 
-      <button type="submit" [disabled]="isSubmitting()">
-        {{ isSubmitting() ? 'Creating account...' : 'Register' }}
-      </button>
-    </form>
+          <h2>Create your account</h2>
 
-    <p class="switch">
-      Already have an account?
-      <a routerLink="/login">Login</a>
-    </p>
-  </div>
-</section>
+          <p>Join TodoFlow and start organizing your work.</p>
+        </div>
+
+        <form [formGroup]="registerForm" (ngSubmit)="submit()" novalidate>
+          <!-- USERNAME -->
+          <div class="field">
+            <label for="username"> Username </label>
+
+            <div
+              class="input-wrapper"
+              [class.invalid]="
+                registerForm.controls.username.touched && registerForm.controls.username.invalid
+              "
+            >
+              <span class="input-icon"> 👤 </span>
+
+              <input
+                id="username"
+                type="text"
+                formControlName="username"
+                placeholder="Enter your username"
+                autocomplete="username"
+              />
+            </div>
+
+            @if (registerForm.controls.username.touched && registerForm.controls.username.invalid) {
+              <small class="field-error"> Username must be at least 2 characters. </small>
+            }
+          </div>
+
+          <!-- EMAIL -->
+          <div class="field">
+            <label for="email"> Email </label>
+
+            <div
+              class="input-wrapper"
+              [class.invalid]="
+                registerForm.controls.email.touched && registerForm.controls.email.invalid
+              "
+            >
+              <span class="input-icon"> ✉ </span>
+
+              <input
+                id="email"
+                type="email"
+                formControlName="email"
+                placeholder="Enter your email"
+                autocomplete="email"
+              />
+            </div>
+
+            @if (registerForm.controls.email.touched && registerForm.controls.email.invalid) {
+              <small class="field-error"> Please enter a valid email. </small>
+            }
+          </div>
+
+          <!-- PASSWORD -->
+          <div class="field">
+            <label for="password"> Password </label>
+
+            <div
+              class="input-wrapper"
+              [class.invalid]="
+                registerForm.controls.password.touched && registerForm.controls.password.invalid
+              "
+            >
+              <span class="input-icon"> 🔒 </span>
+
+              <input
+                id="password"
+                type="password"
+                formControlName="password"
+                placeholder="Create a password"
+                autocomplete="new-password"
+              />
+            </div>
+
+            @if (registerForm.controls.password.touched && registerForm.controls.password.invalid) {
+              <small class="field-error"> Password must be at least 8 characters. </small>
+            }
+          </div>
+
+          <!-- ERROR -->
+          @if (errorMessage()) {
+            <div class="error-box">
+              <span>!</span>
+              {{ errorMessage() }}
+            </div>
+          }
+
+          <!-- SUBMIT -->
+          <button type="submit" class="submit-button" [disabled]="isSubmitting()">
+            @if (isSubmitting()) {
+              <span class="spinner"></span>
+              Creating account...
+            } @else {
+              Create account
+              <span class="arrow">→</span>
+            }
+          </button>
+        </form>
+
+        <div class="login-link">
+          <span>Already have an account?</span>
+          <a routerLink="/login"> Sign in </a>
+        </div>
+      </div>
+    </section>
+  </section>
+</main>

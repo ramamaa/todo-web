@@ -1,41 +1,116 @@
-<app-header></app-header>
-
 <section class="auth-page">
-  <div class="auth-card">
-    <h1>Login</h1>
-    <p>Welcome back. Please sign in to continue.</p>
+  <div class="auth-shell">
+    <!-- LEFT BRAND PANEL -->
+    <aside class="brand-panel">
+      <div class="brand-content">
+        <div class="brand-logo">
+          <div class="logo-icon">
+            <span>✓</span>
+          </div>
+          <span class="logo-text">Todo<span>Flow</span></span>
+        </div>
 
-    <form [formGroup]="loginForm" (ngSubmit)="submit()">
-      <label>
-        Email
-        <input type="email" formControlName="email" placeholder="you@example.com" />
-      </label>
+        <div class="brand-message">
+          <p class="brand-eyebrow">WELCOME BACK</p>
 
-      @if (loginForm.get('email')?.touched && loginForm.get('email')?.invalid) {
-        <small class="error">Please enter a valid email.</small>
-      }
+          <h1>
+            Stay focused.<br />
+            Get things done.
+          </h1>
 
-      <label>
-        Password
-        <input type="password" formControlName="password" placeholder="••••••••" />
-      </label>
+          <p>Organize your tasks, track your progress, and keep your day moving forward.</p>
+        </div>
 
-      @if (loginForm.get('password')?.touched && loginForm.get('password')?.invalid) {
-        <small class="error">Password must be at least 8 characters.</small>
-      }
+        <div class="brand-footer">
+          <span>PLAN</span>
+          <span>•</span>
+          <span>FOCUS</span>
+          <span>•</span>
+          <span>FLOW</span>
+        </div>
+      </div>
+    </aside>
 
-      @if (errorMessage()) {
-        <div class="error-box">{{ errorMessage() }}</div>
-      }
+    <!-- RIGHT LOGIN PANEL -->
+    <main class="form-panel">
+      <div class="mobile-logo">
+        <div class="logo-icon">
+          <span>✓</span>
+        </div>
+        <span class="logo-text">Todo<span>Flow</span></span>
+      </div>
 
-      <button type="submit" [disabled]="isSubmitting()">
-        {{ isSubmitting() ? 'Signing in...' : 'Login' }}
-      </button>
-    </form>
+      <div class="auth-card">
+        <div class="form-heading">
+          <p class="eyebrow">WELCOME BACK</p>
 
-    <p class="switch">
-      Don’t have an account?
-      <a routerLink="/register">Register</a>
-    </p>
+          <h2>Sign in</h2>
+
+          <p class="subtitle">Welcome back. Please enter your details.</p>
+        </div>
+
+        <form [formGroup]="loginForm" (ngSubmit)="submit()">
+          <div class="field">
+            <label for="email">Email</label>
+
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              placeholder="you@example.com"
+              autocomplete="email"
+            />
+
+            @if (loginForm.get('email')?.touched && loginForm.get('email')?.invalid) {
+              <small class="error"> Please enter a valid email. </small>
+            }
+          </div>
+
+          <div class="field">
+            <div class="label-row">
+              <label for="password">Password</label>
+            </div>
+
+            <input
+              id="password"
+              type="password"
+              formControlName="password"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+            />
+
+            @if (loginForm.get('password')?.touched && loginForm.get('password')?.invalid) {
+              <small class="error"> Password must be at least 8 characters. </small>
+            }
+          </div>
+
+          @if (errorMessage()) {
+            <div class="error-box">
+              <span class="error-icon">!</span>
+              <span>{{ errorMessage() }}</span>
+            </div>
+          }
+
+          <button type="submit" class="submit-button" [disabled]="isSubmitting()">
+            @if (isSubmitting()) {
+              <span class="spinner"></span>
+              Signing in...
+            } @else {
+              Sign in
+              <span class="arrow">→</span>
+            }
+          </button>
+        </form>
+
+        <div class="divider">
+          <span>OR</span>
+        </div>
+
+        <p class="switch">
+          Don't have an account?
+          <a routerLink="/register">Create an account</a>
+        </p>
+      </div>
+    </main>
   </div>
 </section>
