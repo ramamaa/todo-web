@@ -2,11 +2,12 @@ import { Component, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, Validators, FormBuilder } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth';
+import { AppHeader } from '../../../shared/components/app-header/app-header';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, AppHeader],
   templateUrl: './register.html',
   styleUrl: './register.css',
 })
