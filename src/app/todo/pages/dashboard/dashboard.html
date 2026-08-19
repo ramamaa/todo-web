@@ -24,53 +24,7 @@
       </div>
     </header>
 
-    <!-- CATEGORIES -->
-    <section class="category-panel">
-      <div class="category-panel-header">
-        <div>
-          <p class="eyebrow">CATEGORIES</p>
-          <h2>Your categories</h2>
-        </div>
-      </div>
-
-      @if (isLoadingCategories()) {
-        <p class="state-message">Loading categories...</p>
-      } @else if (categoryErrorMessage()) {
-        <div class="error-state">
-          <p>{{ categoryErrorMessage() }}</p>
-
-          <button type="button" (click)="loadCategories()">Try again</button>
-        </div>
-      } @else {
-        <div class="category-chips">
-          @if (categories().length === 0) {
-            <span class="empty-chip"> No categories yet </span>
-          } @else {
-            @for (category of categories(); track category.id) {
-              <span class="category-chip">
-                {{ category.name }}
-              </span>
-            }
-          }
-        </div>
-      }
-
-      <form class="category-form" [formGroup]="createCategoryForm" (ngSubmit)="createCategory()">
-        <input type="text" formControlName="name" placeholder="New category name" />
-
-        <button type="submit" [disabled]="isCreatingCategory()">
-          {{ isCreatingCategory() ? 'Creating...' : 'Create category' }}
-        </button>
-      </form>
-
-      @if (categoryFormError()) {
-        <p class="form-error">
-          {{ categoryFormError() }}
-        </p>
-      }
-    </section>
-
-    <!-- MODAL -->
+    <!-- TODO MODAL -->
     @if (isFormOpen()) {
       <div class="modal-backdrop" (click)="closeForm()">
         <form
@@ -79,6 +33,7 @@
           (ngSubmit)="saveTodo()"
           (click)="$event.stopPropagation()"
         >
+          <!-- FORM HEADER -->
           <div class="form-header">
             <div>
               <p class="eyebrow">TODO</p>
@@ -88,51 +43,71 @@
               </h2>
             </div>
 
-            <button type="button" class="close-button" (click)="closeForm()">×</button>
+            <button type="button" class="close-button" (click)="closeForm()" aria-label="Close">
+              ×
+            </button>
           </div>
 
+          <!-- ERROR -->
           @if (todoFormError()) {
             <p class="form-error">
               {{ todoFormError() }}
             </p>
           }
 
-          <label>Title</label>
+          <!-- TITLE -->
+          <label for="todo-title"> Title </label>
 
-          <input type="text" formControlName="title" placeholder="What needs to be done?" />
+          <input
+            id="todo-title"
+            type="text"
+            formControlName="title"
+            placeholder="What needs to be done?"
+          />
 
-          <label> Description </label>
+          @if (todoForm.controls.title.touched && todoForm.controls.title.invalid) {
+            <small class="field-error"> Title is required. </small>
+          }
+
+          <!-- DESCRIPTION -->
+          <label for="todo-description"> Description </label>
 
           <textarea
+            id="todo-description"
             rows="4"
             formControlName="description"
             placeholder="Add more details..."
           ></textarea>
 
-          <label> Priority </label>
+          <!-- PRIORITY -->
+          <label for="todo-priority"> Priority </label>
 
-          <select formControlName="priority">
+          <select id="todo-priority" formControlName="priority">
             <option value="low">Low</option>
             <option value="medium">Medium</option>
             <option value="high">High</option>
           </select>
 
-          <label> Due date </label>
+          <!-- DUE DATE -->
+          <label for="todo-due-date"> Due date </label>
 
-          <input type="date" formControlName="due_date" />
+          <input id="todo-due-date" type="date" formControlName="due_date" />
 
-          <label> Category </label>
+          <!-- CATEGORY -->
+          <label for="todo-category"> Category </label>
 
-          <select formControlName="category_id">
-            <option value="">No category</option>
+          <input
+            id="todo-category"
+            type="text"
+            formControlName="category_name"
+            placeholder="e.g. Learning, Work, Personal"
+          />
 
-            @for (category of categories(); track category.id) {
-              <option [value]="category.id">
-                {{ category.name }}
-              </option>
-            }
-          </select>
+          <small class="field-hint">
+            Enter a category. If it doesn't exist, we'll create it automatically.
+          </small>
 
+          <!-- FORM ACTIONS -->
           <div class="form-actions">
             <button type="button" class="cancel-button" (click)="closeForm()">Cancel</button>
 
@@ -145,12 +120,13 @@
     }
 
     <!-- TODOS -->
-
     @if (isLoadingTodos()) {
       <p class="state-message">Loading todos...</p>
     } @else if (todoErrorMessage()) {
       <div class="error-state">
-        <p>{{ todoErrorMessage() }}</p>
+        <p>
+          {{ todoErrorMessage() }}
+        </p>
 
         <button type="button" (click)="loadTodos()">Try again</button>
       </div>
@@ -159,16 +135,29 @@
         <h2>No todos yet</h2>
 
         <p>Create the first todo for your workspace.</p>
+
+        <button type="button" class="hero-button" (click)="openCreateForm()">
+          + Create your first todo
+        </button>
       </div>
     } @else {
       <section class="todo-list">
         @for (todo of todos(); track todo.id) {
           <article class="todo-card" [class.completed]="todo.completed">
+            <!-- TODO TOP -->
             <div class="todo-top">
-              <div>
-                <h2>
-                  {{ todo.title }}
-                </h2>
+              <div class="todo-content">
+                <div class="title-row">
+                  <h2>
+                    {{ todo.title }}
+                  </h2>
+
+                  @if (todo.category_name) {
+                    <span class="category-tag">
+                      {{ todo.category_name }}
+                    </span>
+                  }
+                </div>
 
                 @if (todo.description) {
                   <p class="description">
@@ -177,11 +166,21 @@
                 }
               </div>
 
-              <button type="button" class="check-button" (click)="toggleTodo(todo)">
+              <!-- COMPLETE -->
+              <button
+                type="button"
+                class="check-button"
+                [class.checked]="todo.completed"
+                (click)="toggleTodo(todo)"
+                [attr.aria-label]="
+                  todo.completed ? 'Mark todo as incomplete' : 'Mark todo as complete'
+                "
+              >
                 {{ todo.completed ? '✓' : '' }}
               </button>
             </div>
 
+            <!-- META -->
             <div class="meta">
               @if (todo.due_date) {
                 <span>
@@ -201,15 +200,32 @@
               }
             </div>
 
+            <!-- FOOTER -->
             <div class="todo-footer">
               <span class="status-badge" [class.done]="todo.completed">
                 {{ todo.completed ? 'Completed' : 'In Progress' }}
               </span>
 
               <div class="icon-actions">
-                <button type="button" class="icon-btn" (click)="openEditForm(todo)">✎</button>
+                <button
+                  type="button"
+                  class="icon-btn"
+                  (click)="openEditForm(todo)"
+                  aria-label="Edit todo"
+                  title="Edit"
+                >
+                  ✎
+                </button>
 
-                <button type="button" class="icon-btn" (click)="deleteTodo(todo)">🗑</button>
+                <button
+                  type="button"
+                  class="icon-btn delete-btn"
+                  (click)="deleteTodo(todo)"
+                  aria-label="Delete todo"
+                  title="Delete"
+                >
+                  🗑
+                </button>
               </div>
             </div>
           </article>
